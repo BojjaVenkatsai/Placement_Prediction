@@ -1,0 +1,27 @@
+from flask import Flask
+from flask import request, render_template
+import pickle,sklearn
+import numpy as np
+
+model = pickle.load(open('model.pkl','rb'))
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/predict',methods=['POST'])
+def predict():
+    cgpa=float(request.form.get('cgpa'))
+    iq=int(request.form.get('iq'))
+    profile_score = int(request.form.get('profile_score'))
+    result=model.predict(np.array([cgpa,iq,profile_score]).reshape(1,3))
+
+    if result[0]==1:
+        result = 'placed'
+    else:
+        result = 'not placed'
+    return result
+
+if __name__=='__main__':
+    app.run()
